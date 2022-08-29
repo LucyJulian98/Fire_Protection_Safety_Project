@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import sessionmaker
 
 ### Setting up the sqlite engine 
 engine = create_engine("sqlite:///fps.db", echo = True)
@@ -52,6 +53,7 @@ class Pad_Panels(base) :
     __tablename__ = 'Pad_Panels'
 
     Id = Column(Integer, primary_key = True)
+    Type = Column(String)
     Location = Column(String)
     System_Id = Column(Integer, ForeignKey('Systems.Id'))
     Battery_Quantity = Column(Integer)
@@ -81,7 +83,7 @@ class Equipment_Ids(base) :
     System_Id = Column(Integer, primary_key = True) ### Unable to have foreign key constraint due to devices like hydrants and kitchen hoods 
     Building_Code = Column(String, primary_key = True) ### Unable to have foreign key constraint due to devices like hydrants 
     Device_Code = Column(String, ForeignKey('Devices.Code'), primary_key = True)    
-    device = relationship("Devices", back_populates = "Equipment_Ids") ### First argument class name, second argument table name 
+    Device = relationship("Devices", back_populates = "Equipment_Ids") ### First argument class name, second argument table name 
      
 Devices.Equipment_Ids = relationship("Equipment_Ids", back_populates = "Devices")
 
@@ -144,3 +146,4 @@ Components.Failure = relationship("Failures", back_populates = "Components")
 Tests.Failure = relationship("Failures", back_populates = "Test")
 
 base.metadata.create_all(engine)    
+
