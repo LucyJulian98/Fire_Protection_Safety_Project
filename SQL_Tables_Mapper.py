@@ -124,6 +124,23 @@ class Components(base) :
 
 Devices.Components = relationship("Components", back_populates = "Devices")
 
+class Tests(base) :
+    __tablename__ = "Tests"
 
+    Id = Column(Integer, primary_key = True)
+    Testing_Parameter = Column(String)
+
+class Failures(base) :
+    __tablename__ = "Failures"
+
+    Component_Id = Column(String, ForeignKey("Components.Id"), primary_key = True)
+    Inpsection_Id = Column(String, primary_key = True)
+    Test_Id = Column(Integer, ForeignKey("Tests.Id"), primary_key = True)
+    Technician_Note = Column(String)
+    Component = relationship("Components", back_populates = "Failures")
+    Test = relationship("Tests", back_populates = "Failures")
+
+Components.Failure = relationship("Failures", back_populates = "Components")
+Tests.Failure = relationship("Failures", back_populates = "Test")
 
 base.metadata.create_all(engine)    
