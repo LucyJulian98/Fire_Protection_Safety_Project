@@ -14,6 +14,8 @@ engine = create_engine("sqlite:///fps.db", echo = True)
 ### Declarative Base Class
 base = declarative_base()
 
+
+### IMPORTANT NOTE : For Foerign keys, the property names should match the table(sql) names of the referenced tables. 
 ### Declaring the classes for each table 
 ### Class for both overarching devices and their components
 class Devices(base) :  
@@ -45,9 +47,9 @@ class Buildings(base) :
     Latitude = Column(String)
     Longitude = Column(String)
     System_Id = Column(Integer, ForeignKey("Systems.Id"))
-    System = relationship("Systems", back_populates = "Buildings")
+    Systems = relationship("Systems", back_populates = "Buildings")
 
-Systems.Building = relationship("Buildings", back_populates = "Systems")
+Systems.Buildings = relationship("Buildings", back_populates = "Systems")
 
 class Pad_Panels(base) :
     __tablename__ = 'Pad_Panels'
@@ -59,9 +61,9 @@ class Pad_Panels(base) :
     Battery_Quantity = Column(Integer)
     Battery_Specs = Column(String)
     Battery_Date = Column(String)
-    System = relationship("Systems", back_populates = "Pad_Panels")
+    Systems = relationship("Systems", back_populates = "Pad_Panels")
 
-Systems.Pads = relationship("Pad_Panels", back_populates = "Systems")
+Systems.Pad_Panels = relationship("Pad_Panels", back_populates = "Systems")
 
 class Remote_Panels(base) :
     __tablename__ = 'Remote_Panels'
@@ -72,9 +74,9 @@ class Remote_Panels(base) :
     Battery_Quantity = Column(Integer)
     Battery_Specs = Column(String)
     Battery_Date = Column(String)
-    System = relationship("Systems", back_populates = "Remote_Panels") ### First argument class name, second argument table name 
+    Systems = relationship("Systems", back_populates = "Remote_Panels") ### First argument class name, second argument table name 
 
-Systems.Remotes = relationship("Remote_Panels", back_populates = "Systems")
+Systems.Remote_Panels = relationship("Remote_Panels", back_populates = "Systems")
 
 ### Class to create unique identifies for each device 
 class Equipment_Ids(base) : 
@@ -83,7 +85,7 @@ class Equipment_Ids(base) :
     System_Id = Column(Integer, primary_key = True) ### Unable to have foreign key constraint due to devices like hydrants and kitchen hoods 
     Building_Code = Column(String, primary_key = True) ### Unable to have foreign key constraint due to devices like hydrants 
     Device_Code = Column(String, ForeignKey('Devices.Code'), primary_key = True)    
-    Device = relationship("Devices", back_populates = "Equipment_Ids") ### First argument class name, second argument table name 
+    Devices = relationship("Devices", back_populates = "Equipment_Ids") ### First argument class name, second argument table name 
      
 Devices.Equipment_Ids = relationship("Equipment_Ids", back_populates = "Devices")
 
@@ -110,9 +112,9 @@ class Inspections_Fire_Alarms(base) :
     Duct_Detectors_Tested = Column(Integer)
     Duct_Detectors_Failed = Column(Integer)
     Source_File_Link = Column(String)
-    System = relationship("Systems", back_populates = "Inspections_Fire_Alarms")
+    Systems = relationship("Systems", back_populates = "Inspections_Fire_Alarms")
 
-Systems.Fire_Alarm = relationship("Inspections_Fire_Alarms", back_populates = "Systems")
+Systems.Inspections_Fire_Alarms = relationship("Inspections_Fire_Alarms", back_populates = "Systems")
 
 class Components(base) : 
     __tablename__ = "Components"
@@ -139,11 +141,20 @@ class Failures(base) :
     Inpsection_Id = Column(String, primary_key = True)
     Test_Id = Column(Integer, ForeignKey("Tests.Id"), primary_key = True)
     Technician_Note = Column(String)
-    Component = relationship("Components", back_populates = "Failures")
-    Test = relationship("Tests", back_populates = "Failures")
+    Components = relationship("Components", back_populates = "Failures")
+    Tests = relationship("Tests", back_populates = "Failures")
 
-Components.Failure = relationship("Failures", back_populates = "Components")
-Tests.Failure = relationship("Failures", back_populates = "Test")
+Components.Failures = relationship("Failures", back_populates = "Components")
+Tests.Failures = relationship("Failures", back_populates = "Tests")
 
-base.metadata.create_all(engine)    
+base.metadata.create_all(engine)   
+
+### Creating session
+session = sessionmaker(bind = engine)
+session = session()
+record = Devices(Code = "HD", Device_Name = "Heat Detector")
+
+### Populating the Devices Table 
+session.add(record)
+session.commit()
 
