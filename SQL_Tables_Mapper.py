@@ -17,13 +17,32 @@ base = declarative_base()
 
 ### IMPORTANT NOTE : For Foerign keys, the property names should match the table(sql) names of the referenced tables. 
 ### Declaring the classes for each table 
-### Class for both overarching devices and their components
+
+################################ SYSTEM INFRASTRUCTURE CLASSES ##################################
+### Class to create unique identifies for each device 
+class Equipment_Ids(base) : 
+    __tablename__ = "Equipment_Ids"
+
+    Id = Column(String, primary_key = True)
+
+
 class Devices(base) :  
     __tablename__ = 'Devices'
 
     Code = Column(String, primary_key = True)
     Device_Name = Column(String)
 
+class Components(base) : 
+    __tablename__ = "Components"
+
+    Id = Column(String, primary_key = True)   
+    Equipment_Id = Column(Integer) ### From Equipment ID Table 
+    Component_Code = Column(String, ForeignKey("Devices.Code"))
+    Location = Column(String)
+    Address = Column(String)
+    Devices = relationship("Devices", back_populates = "Components")
+
+Devices.Components = relationship("Components", back_populates = "Devices")
 
 class Systems(base) :
     __tablename__ = 'Systems'
@@ -79,17 +98,16 @@ class Remote_Panels(base) :
 
 Systems.Remote_Panels = relationship("Remote_Panels", back_populates = "Systems")
 
-### Class to create unique identifies for each device 
-### To be populated using triggers or pandas 
-class Equipment_Ids(base) : 
-    __tablename__ = "Equipment_Ids"
+class Hydrants(base) :
+    __tablename__ = "Hydrants"
 
-    System_Id = Column(Integer, primary_key = True) ### Unable to have foreign key constraint due to devices like hydrants and kitchen hoods 
-    Building_Code = Column(String, primary_key = True) ### Unable to have foreign key constraint due to devices like hydrants 
-    Device_Code = Column(String, ForeignKey('Devices.Code'), primary_key = True)    
-    Devices = relationship("Devices", back_populates = "Equipment_Ids") ### First argument class name, second argument table name 
-     
-Devices.Equipment_Ids = relationship("Equipment_Ids", back_populates = "Devices")
+    Id = Column(String, ForeignKey("Equipment_Ids.Id"), primary_key = True)
+    Location = Column(String)
+    Latitude = Column(String)
+    Longitude = Column(String)
+    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Hydrants")
+
+Equipment_Ids.Hydrants = relationship("Hydrants", back_populates = "Equipment_Ids")
 
 class Source_Files(base) :
     __tablename__ = "Source_Files"
@@ -100,6 +118,9 @@ class Source_Files(base) :
     Devices = relationship("Devices", back_populates = "Source_Files")
 
 Devices.Source_Files = relationship("Source_Files", back_populates = "Devices")
+
+
+################################ INSPECTION CLASSES ##################################
 
 ### To be populated using triggers or pandas 
 class Latest_Inspections(base) :
@@ -154,18 +175,36 @@ class Inspections_Sprinklers(base) :
 Systems.Inspections_Sprinklers = relationship("Inspections_Sprinklers", back_populates = "Systems")
 Source_Files.Inspections_Sprinklers = relationship("Inspections_Sprinklers", back_populates = "Source_Files")
 
+class Inspections_Fire_Pumps(base) :
+    __tablename__ = "Inspections_Fire_Pumps"
 
-class Components(base) : 
-    __tablename__ = "Components"
+    Id = Column(String, primary_key = True)
+    Equipment_Id = Column(Integer, ForeignKey("Equipment_Ids.Id"))
+    Date = Column(String)
+    Type = Column(String)
+    Fire_Pump_Problems = Column(Integer)
+    Source_File_Link_Id = Column(Integer, ForeignKey(Source_Files.Id))
+    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Inpections_Fire_Pumps")
+    Source_Files = relationship("Source_Files", back_populates = "Inspections_Fire_Pumps")
 
-    Id = Column(String, primary_key = True)   
-    Equipment_Id = Column(Integer) ### From Equipment ID Table 
-    Component_Code = Column(String, ForeignKey("Devices.Code"))
-    Location = Column(String)
-    Address = Column(String)
-    Devices = relationship("Devices", back_populates = "Components")
+Equipment_Ids.Inspections_Fire_Pumps = relationship("Inspections_Fire_Pumps", back_populates = "Equipment_Ids")
+Source_Files.Inspections_Fire_Pumps = relationship("Inspections_Fire_Pumps", back_populates = "Source_Files")
 
-Devices.Components = relationship("Components", back_populates = "Devices")
+class Inspections_Hydrants(base) :
+    __tablename__ = "Inspections_Hydrants"
+
+    Id = Column(String, primary_key = True)
+    Hydrant_Id = Column(Integer, ForeignKey("Hydrants.Id"))
+    Date = Column(String)
+    Type = Column(String)
+    Source_File_Link_Id = Column(Integer, ForeignKey(Source_Files.Id))
+    Hydrants = relationship("Hydrants", back_populates = "Inspections_Hydrants")
+    Source_Files = relationship("Source_Files", back_populates = "Inspections_Hydrants")
+
+Hydrants.Inspections_Hydrants = relationship("Inpections_Hydrants", back_populates = "Hydrants")
+Source_Files.Inspections_Hydrants = relationship("Inspections_Hydrants", back_populates = "Source_Files")
+
+################################ TESTS AND FAILURES ##################################
 
 class Tests(base) :
     __tablename__ = "Tests"
@@ -187,6 +226,7 @@ class Failures(base) :
 Components.Failures = relationship("Failures", back_populates = "Components")
 Tests.Failures = relationship("Failures", back_populates = "Tests")
 
+### Create the tables in the database 
 base.metadata.create_all(engine)   
 
 ### Creating session
