@@ -36,6 +36,7 @@ class Systems(base) :
     Battery_Specs = Column(String)
     Battery_Date = Column(String)
     Pull_Station_Quantity = Column(Integer)
+    Heat_Detector_Quantity = Column(Integer)
     Smoke_Detector_Quantity = Column(Integer)
     Duct_Detector_Quantity = Column(Integer)
 
@@ -79,6 +80,7 @@ class Remote_Panels(base) :
 Systems.Remote_Panels = relationship("Remote_Panels", back_populates = "Systems")
 
 ### Class to create unique identifies for each device 
+### To be populated using triggers or pandas 
 class Equipment_Ids(base) : 
     __tablename__ = "Equipment_Ids"
 
@@ -89,6 +91,17 @@ class Equipment_Ids(base) :
      
 Devices.Equipment_Ids = relationship("Equipment_Ids", back_populates = "Devices")
 
+class Source_Files(base) :
+    __tablename__ = "Source_Files"
+
+    Id = Column(Integer, primary_key = True)
+    Device_Code = Column(String, ForeignKey(Devices.Code))
+    Link = Column(String)
+    Devices = relationship("Devices", back_populates = "Source_Files")
+
+Devices.Source_Files = relationship("Source_Files", back_populates = "Devices")
+
+### To be populated using triggers or pandas 
 class Latest_Inspections(base) :
     __tablename__ = "Latest_Inspections"
     
@@ -111,10 +124,36 @@ class Inspections_Fire_Alarms(base) :
     Smoke_Detectors_Failed = Column(Integer)
     Duct_Detectors_Tested = Column(Integer)
     Duct_Detectors_Failed = Column(Integer)
-    Source_File_Link = Column(String)
+    Source_File_Link_Id = Column(Integer, ForeignKey(Source_Files.Id))
     Systems = relationship("Systems", back_populates = "Inspections_Fire_Alarms")
+    Source_Files = relationship("Source_Files", back_populates = "Inspections_Fire_Alarms")
 
 Systems.Inspections_Fire_Alarms = relationship("Inspections_Fire_Alarms", back_populates = "Systems")
+Source_Files.Inspections_Fire_Alarms = relationship("Inspections_Fire_Alarms", back_populates = "Source_Files")
+
+class Inspections_Sprinklers(base) :
+    __tablename__ = "Inspections_Sprinklers"
+
+    Id = Column(String, primary_key = True)
+    System_Id = Column(Integer, ForeignKey("Systems.Id"))
+    Date = Column(String)
+    Type = Column(String)
+    Dry_System_Problems = Column(Integer)
+    Dry_Pipe_Valve_Problems = Column(Integer)
+    Air_Compressor_Problems = Column(Integer)
+    Wet_Check_Valve_Problems = Column(Integer)
+    Wet_System_Problems = Column(Integer)
+    Control_Valve_Problems = Column(Integer)
+    Supervisory_Devices_Problems = Column(Integer)
+    Alarm_Devices_Problems = Column(Integer)
+    FDC_Problems = Column(Integer)
+    Source_File_Link_Id = Column(Integer, ForeignKey(Source_Files.Id))
+    Systems = relationship("Systems", back_populates = "Inspections_Sprinklers")
+    Source_Files = relationship("Source_Files", back_populates = "Inspections_Sprinklers")
+
+Systems.Inspections_Sprinklers = relationship("Inspections_Sprinklers", back_populates = "Systems")
+Source_Files.Inspections_Sprinklers = relationship("Inspections_Sprinklers", back_populates = "Source_Files")
+
 
 class Components(base) : 
     __tablename__ = "Components"
@@ -133,6 +172,7 @@ class Tests(base) :
 
     Id = Column(Integer, primary_key = True)
     Testing_Parameter = Column(String)
+    ITM_Code = Column(String)
 
 class Failures(base) :
     __tablename__ = "Failures"
@@ -150,11 +190,11 @@ Tests.Failures = relationship("Failures", back_populates = "Tests")
 base.metadata.create_all(engine)   
 
 ### Creating session
-session = sessionmaker(bind = engine)
-session = session()
-record = Devices(Code = "HD", Device_Name = "Heat Detector")
+#session = sessionmaker(bind = engine)
+#session = session()
+#record = Devices(Code = "HD", Device_Name = "Heat Detector")
 
 ### Populating the Devices Table 
-session.add(record)
-session.commit()
+#session.add(record)
+#session.commit()
 
