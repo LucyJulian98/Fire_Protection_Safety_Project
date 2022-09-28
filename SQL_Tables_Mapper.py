@@ -26,30 +26,6 @@ class Devices(base) :
     Code = Column(String, primary_key = True)
     Device_Name = Column(String)
 
-class Components(base) : 
-    __tablename__ = "Components"
-
-    Id = Column(String, primary_key = True)   
-    Equipment_Id = Column(Integer) ### From Equipment ID Table 
-    Component_Code = Column(String, ForeignKey("Devices.Code"))
-    Location = Column(String)
-    Address = Column(String)
-    Devices = relationship("Devices", back_populates = "Components")
-
-Devices.Components = relationship("Components", back_populates = "Devices")
-
-### Class to create unique identifies for each device 
-class Equipment_Ids(base) : 
-    __tablename__ = "Equipment_Ids"
-
-    Id = Column(String, primary_key = True)
-    System_Id = Column(Integer) ### Can't place the foreign key constraint due to hydrants and kitchen hoods
-    Building_Code = Column(String) ### Can't place the foreign key constraint due to hydrants 
-    Device_Code = Column(String, ForeignKey("Devices.Code"))
-    Devices = relationship("Devices", back_populates = "Equipment_Ids")
-
-Devices.Equipments_Ids = relationship("Equipment_Ids", back_populates = "Devices")
-
 class Systems(base) :
     __tablename__ = 'Systems'
 
@@ -76,6 +52,32 @@ class Buildings(base) :
     Systems = relationship("Systems", back_populates = "Buildings")
 
 Systems.Buildings = relationship("Buildings", back_populates = "Systems")
+
+### Class to create unique identifies for each device 
+class Equipment_Ids(base) : 
+    __tablename__ = "Equipment_Ids"
+
+    Id = Column(String, primary_key = True)
+    System_Id = Column(Integer) ### Can't place the foreign key constraint due to hydrants and kitchen hoods
+    Building_Code = Column(String) ### Can't place the foreign key constraint due to hydrants 
+    Device_Code = Column(String, ForeignKey("Devices.Code"))
+    Devices = relationship("Devices", back_populates = "Equipment_Ids")
+
+Devices.Equipments_Ids = relationship("Equipment_Ids", back_populates = "Devices")
+
+class Components(base) : 
+    __tablename__ = "Components"
+  
+    Id = Column(Integer, primary_key = True) ### For numbering the components within each device 
+    Equipment_Id = Column(Integer, ForeignKey("Equipment_Ids.Id"), primary_key = True) ### From Equipment ID Table 
+    Component_Code = Column(String, ForeignKey("Devices.Code"), primary_key = True)
+    Location = Column(String)
+    Address = Column(String)
+    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Components")
+    Devices = relationship("Devices", back_populates = "Components")
+
+Equipment_Ids.Components = relationship("Components", back_populates = "Equipment_Ids")
+Devices.Components = relationship("Components", back_populates = "Devices")
 
 class Pad_Panels(base) :
     __tablename__ = 'Pad_Panels'
@@ -194,35 +196,16 @@ class Inspections_Hydrants(base) :
 
 Inspections.Inspections_Hydrants = relationship("Inspections_Hydrants", back_populates = "Inspections")
 
-class Inspections_Foam_Systems(base) :
-    __tablename__ = "Inspections_Foam_Systems"
+### For FM-200, Foam, Kitchen Hoods, Vesdas? 
+class Inspections_Special_Protection_Systems(base) : 
+    __tablename__ = "Inspections_Special_Protection_Systems"
 
     Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
-    Foam_Testing_Problems = Column(Integer)
-    Inspections = relationship("Inspections", back_populates = "Inspections_Foam_Systems")
+    Testing_Problems = Column(Integer)
+    Inspections = relationship("Inspections", back_populates = "Inspections_Special_Protection_Systems")
 
-Inspections.Inspections_Foam_Systems = relationship("Inspections_Foam_Systems", back_populates = "Inspections")
+Inspections.Inspections_Special_Protection_Systems = relationship("Inspections_Special_Protection_Systems", back_populates = "Inspections")
 
-class Inspections_FM_200(base) :
-    __tablename__ = "Inspections_FM_200"
-
-    Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
-    FM_Testing_Problems = Column(Integer)
-    Inspections = relationship("Inspections", back_populates = "Inspections_FM_200")
-
-Inspections.Inspections_FM_200 = relationship("Inspections_FM_200", back_populates = "Inspections")
-
-
-'''
-### To be populated using triggers or pandas 
-class Latest_Inspections(base) :
-    __tablename__ = "Latest_Inspections"
-    
-    Inspection_Id = Column(String, primary_key = True) ### From the Inspections Table 
-    Inspection_Type = Column(String)
-    Date = Column(String)
-    System_Issues = Column(Integer)
-'''
 
 
 ################################ TESTS AND FAILURES ##################################
