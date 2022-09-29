@@ -83,7 +83,7 @@ class Pad_Panels(base) :
     __tablename__ = 'Pad_Panels'
 
     Id = Column(Integer, primary_key = True)
-    Type = Column(String)
+    Type = Column(String) ### This is where you put in PAD3 or PAD4 
     Location = Column(String)
     System_Id = Column(Integer, ForeignKey('Systems.Id'))
     Battery_Quantity = Column(Integer)
@@ -147,7 +147,7 @@ Source_Files.Inspections = relationship("Inspections", back_populates = "Source_
 class Inspections_Fire_Alarms(base) :
     __tablename__ = "Inspections_Fire_Alarms"
 
-    Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
+    Inspection_Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
     Batteries_Tested = Column(Boolean)
     Heat_Detectors_Tested = Column(Integer)
     Heat_Detectors_Failed = Column(Integer)
@@ -164,7 +164,7 @@ Inspections.Inspections_Fire_Alarms = relationship("Inspections_Fire_Alarms", ba
 class Inspections_Sprinklers(base) :
     __tablename__ = "Inspections_Sprinklers"
 
-    Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
+    Inspection_Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
     Dry_System_Problems = Column(Integer)
     Dry_Pipe_Valve_Problems = Column(Integer)
     Air_Compressor_Problems = Column(Integer)
@@ -181,7 +181,7 @@ Inspections.Inspections_Sprinklers = relationship("Inspections_Sprinklers", back
 class Inspections_Fire_Pumps(base) :
     __tablename__ = "Inspections_Fire_Pumps"
 
-    Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
+    Inspection_Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
     Fire_Pump_Problems = Column(Integer)
     Inspections = relationship("Inspections", back_populates = "Inspections_Fire_Pumps")
 
@@ -190,7 +190,7 @@ Inspections.Inspections_Fire_Pumps = relationship("Inspections_Fire_Pumps", back
 class Inspections_Hydrants(base) :
     __tablename__ = "Inspections_Hydrants"
 
-    Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
+    Inspection_Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
     Hydrant_Testing_Problems = Column(String) ### Ideally yes or no.     
     Inspections = relationship("Inspections", back_populates = "Inspections_Hydrants")
 
@@ -200,7 +200,7 @@ Inspections.Inspections_Hydrants = relationship("Inspections_Hydrants", back_pop
 class Inspections_Special_Protection_Systems(base) : 
     __tablename__ = "Inspections_Special_Protection_Systems"
 
-    Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
+    Inspection_Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
     Testing_Problems = Column(Integer)
     Inspections = relationship("Inspections", back_populates = "Inspections_Special_Protection_Systems")
 
