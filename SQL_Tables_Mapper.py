@@ -121,11 +121,11 @@ class Source_Files(base) :
     __tablename__ = "Source_Files"
 
     Id = Column(Integer, primary_key = True)
-    Device_Code = Column(String, ForeignKey(Devices.Code))
+    Equipment_Id = Column(String, ForeignKey("Equipment_Ids.Id")) ### The equipment it belongs to 
     Link = Column(String)
-    Devices = relationship("Devices", back_populates = "Source_Files")
+    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Source_Files")
 
-Devices.Source_Files = relationship("Source_Files", back_populates = "Devices")
+Equipment_Ids.Source_Files = relationship("Source_Files", back_populates = "Equipment_Ids")
 
 
 ################################ INSPECTION CLASSES ##################################
@@ -217,11 +217,15 @@ class Tests(base) :
     Testing_Parameter = Column(String)
     ITM_Code = Column(String)
 
+
+### Can't have compositie primary key made of Inpection Id and Test Id because different comoponents of fire alarm may fail in same test and inspection 
 class Failures(base) :
     __tablename__ = "Failures"
-    Inspection_Id = Column(String, ForeignKey("Inspections.Id"), primary_key = True)
-    Component_Id = Column(String, ForeignKey("Components.Id"), primary_key = True)
-    Test_Id = Column(Integer, ForeignKey("Tests.Id"), primary_key = True)
+    
+    Id = Column(String, primary_key = True) ##uuid? 
+    Inspection_Id = Column(String, ForeignKey("Inspections.Id"))
+    Test_Id = Column(Integer, ForeignKey("Tests.Id"))
+    Component_Id = Column(String, ForeignKey("Components.Id")) ### Not part of the primary key because device such as hydrants don't have a component
     Technician_Note = Column(String)
     Inspections = relationship("Inspections", back_populates = "Failures")
     Components = relationship("Components", back_populates = "Failures")
