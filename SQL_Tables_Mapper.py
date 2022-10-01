@@ -15,7 +15,7 @@ engine = create_engine("sqlite:///fps.db", echo = True)
 base = declarative_base()
 
 
-### IMPORTANT NOTE : For Foerign keys, the property names should match the table(sql) names of the referenced tables. 
+### IMPORTANT NOTE : For Foreign keys, the property names should match the table(sql) names of the referenced tables. 
 ### Declaring the classes for each table 
 
 ################################ SYSTEM INFRASTRUCTURE CLASSES ##################################
@@ -48,22 +48,18 @@ class Buildings(base) :
     Building_Name = Column(String)
     Latitude = Column(String)
     Longitude = Column(String)
-    System_Id = Column(Integer, ForeignKey("Systems.Id"))
-    Systems = relationship("Systems", back_populates = "Buildings")
-
-Systems.Buildings = relationship("Buildings", back_populates = "Systems")
-
+   
 ### Class to create unique identifies for each device 
-class Equipment_Ids(base) : 
-    __tablename__ = "Equipment_Ids"
+class Equipments(base) : 
+    __tablename__ = "Equipments"
 
     Id = Column(String, primary_key = True)
     System_Id = Column(Integer) ### Can't place the foreign key constraint due to hydrants and kitchen hoods
     Building_Code = Column(String) ### Can't place the foreign key constraint due to hydrants 
     Device_Code = Column(String, ForeignKey("Devices.Code"))
-    Devices = relationship("Devices", back_populates = "Equipment_Ids")
+    Devices = relationship("Devices", back_populates = "Equipments")
 
-Devices.Equipments_Ids = relationship("Equipment_Ids", back_populates = "Devices")
+Devices.Equipments = relationship("Equipments", back_populates = "Devices")
 
 class Components(base) : 
     __tablename__ = "Components"
@@ -73,10 +69,10 @@ class Components(base) :
     Component_Code = Column(String, ForeignKey("Devices.Code"), primary_key = True)
     Location = Column(String)
     Address = Column(String)
-    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Components")
+    Equipments = relationship("Equipments", back_populates = "Components")
     Devices = relationship("Devices", back_populates = "Components")
 
-Equipment_Ids.Components = relationship("Components", back_populates = "Equipment_Ids")
+Equipments.Components = relationship("Components", back_populates = "Equipments")
 Devices.Components = relationship("Components", back_populates = "Devices")
 
 class Pad_Panels(base) :
@@ -113,9 +109,9 @@ class Hydrants(base) :
     Location = Column(String)
     Latitude = Column(String)
     Longitude = Column(String)
-    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Hydrants")
+    Equipments = relationship("Equipments", back_populates = "Hydrants")
 
-Equipment_Ids.Hydrants = relationship("Hydrants", back_populates = "Equipment_Ids")
+Equipments.Hydrants = relationship("Hydrants", back_populates = "Equipments")
 
 class Source_Files(base) :
     __tablename__ = "Source_Files"
@@ -123,9 +119,9 @@ class Source_Files(base) :
     Id = Column(Integer, primary_key = True)
     Equipment_Id = Column(String, ForeignKey("Equipment_Ids.Id")) ### The equipment it belongs to 
     Link = Column(String)
-    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Source_Files")
+    Equipments = relationship("Equipments", back_populates = "Source_Files")
 
-Equipment_Ids.Source_Files = relationship("Source_Files", back_populates = "Equipment_Ids")
+Equipments.Source_Files = relationship("Source_Files", back_populates = "Equipments")
 
 
 ################################ INSPECTION CLASSES ##################################
@@ -138,10 +134,10 @@ class Inspections(base) :
     Date = Column(String)
     Type = Column(String)
     Source_File_Link_Id = Column(Integer, ForeignKey(Source_Files.Id))
-    Equipment_Ids = relationship("Equipment_Ids", back_populates = "Inspections")
+    Equipments = relationship("Equipments", back_populates = "Inspections")
     Source_Files = relationship("Source_Files", back_populates = "Inspections")
 
-Equipment_Ids.Inspections = relationship("Inspections", back_populates = "Equipment_Ids")
+Equipments.Inspections = relationship("Inspections", back_populates = "Equipments")
 Source_Files.Inspections = relationship("Inspections", back_populates = "Source_Files")
 
 class Inspections_Fire_Alarms(base) :
