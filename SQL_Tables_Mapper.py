@@ -65,7 +65,7 @@ class Components(base) :
     __tablename__ = "Components"
   
     Id = Column(Integer, primary_key = True) ### For numbering the components within each device 
-    Equipment_Id = Column(Integer, ForeignKey("Equipment_Ids.Id"), primary_key = True) ### From Equipment ID Table 
+    Equipment_Id = Column(Integer, ForeignKey("Equipments.Id"), primary_key = True) ### From Equipment ID Table 
     Component_Code = Column(String, ForeignKey("Devices.Code"), primary_key = True)
     Location = Column(String)
     Address = Column(String)
@@ -105,7 +105,7 @@ Systems.Remote_Panels = relationship("Remote_Panels", back_populates = "Systems"
 class Hydrants(base) :
     __tablename__ = "Hydrants"
 
-    Id = Column(String, ForeignKey("Equipment_Ids.Id"), primary_key = True)
+    Id = Column(String, ForeignKey("Equipments.Id"), primary_key = True)
     Location = Column(String)
     Latitude = Column(String)
     Longitude = Column(String)
@@ -117,7 +117,7 @@ class Source_Files(base) :
     __tablename__ = "Source_Files"
 
     Id = Column(Integer, primary_key = True)
-    Equipment_Id = Column(String, ForeignKey("Equipment_Ids.Id")) ### The equipment it belongs to 
+    Equipment_Id = Column(String, ForeignKey("Equipments.Id")) ### The equipment it belongs to 
     Link = Column(String)
     Equipments = relationship("Equipments", back_populates = "Source_Files")
 
@@ -130,15 +130,12 @@ class Inspections(base) :
     __tablename__ = "Inspections"
 
     Id = Column(String, primary_key = True) ### To be automated and generated every time a record is entered 
-    Equipment_Id = Column(String, ForeignKey("Equipment_Ids.Id"))
+    Equipment_Id = Column(String, ForeignKey("Equipments.Id"))
     Date = Column(String)
     Type = Column(String)
-    Source_File_Link_Id = Column(Integer, ForeignKey(Source_Files.Id))
     Equipments = relationship("Equipments", back_populates = "Inspections")
-    Source_Files = relationship("Source_Files", back_populates = "Inspections")
 
 Equipments.Inspections = relationship("Inspections", back_populates = "Equipments")
-Source_Files.Inspections = relationship("Inspections", back_populates = "Source_Files")
 
 class Inspections_Fire_Alarms(base) :
     __tablename__ = "Inspections_Fire_Alarms"
